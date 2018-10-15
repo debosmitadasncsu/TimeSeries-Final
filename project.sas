@@ -79,43 +79,104 @@ quit;
 proc arima data=train;
 identify var=height(1) crosscorr=(rain(1));
 estimate input=(rain) p=12 q=1 method=ML;
+title "(1) P:12 Q:1";
 run;
 quit;
 
 proc arima data=train;
 identify var=height(1,4383) crosscorr=(rain(1,4383));
 estimate input=(rain) p=12 q=1 method=ML;
+title "(1, 4383) P:12 Q:1";
 run;
 quit;
 
+/*bad*/
 proc arima data=train;
 identify var=height(1,4383) crosscorr=(rain(1,4383));
 estimate input=(rain) p=12 q=0 method=ML;
+title "(1, 4383) P:12 Q:0";
 run;
 quit;
 
-proc arima data=train;
-identify var=height(1,4383) crosscorr=(rain(1,4383));
-estimate input=(rain) p=12 q=1 method=ML;
-run;
-quit;
-
+/*forecast this one*/
 proc arima data=train;
 identify var=height(1,4383) crosscorr=(rain(1,4383));
 estimate input=(rain) p=13 q=0 method=ML;
+title "(1, 4383) P:13 Q:0";
 run;
 quit;
 
+/*forecast this one*/
 proc arima data=train;
 identify var=height(1,4383) crosscorr=(rain(1,4383));
 estimate input=(rain) p=13 q=1 method=ML;
+title "(1, 4383) P:13 Q:1";
 run;
 quit;
 
+/*forecast this one*/
 proc arima data=train;
 identify var=height(1,4383) crosscorr=(rain(1,4383));
 estimate input=(rain) p=13 q=2 method=ML;
+title "(1, 4383) P:13 Q:2";
 run;
+quit;
+
+
+/*FORECASTS*/
+/*forecast this one*/
+proc arima data=well2014;
+identify var=height(1,4383) crosscorr=(rain(1,4383));
+estimate input=(rain) p=13 q=0 method=ML;
+forecast back=168 lead=168 out=res130;
+title "(1, 4383) P:13 Q:0";
+run;
+quit;
+
+/*forecast this one*/
+proc arima data=well2014;
+identify var=height(1,4383) crosscorr=(rain(1,4383));
+estimate input=(rain) p=13 q=1 method=ML;
+forecast back=168 lead=168 out=res131;
+title "(1, 4383) P:13 Q:1";
+run;
+quit;
+
+/*forecast this one*/
+proc arima data=well2014;
+identify var=height(1,4383) crosscorr=(rain(1,4383));
+estimate input=(rain) p=13 q=2 method=ML;
+forecast back=168 lead=168 out=res132;
+title "(1, 4383) P:13 Q:2";
+run;
+quit;
+
+
+proc arima data=well2014;
+identify var=height(1,4383) crosscorr=(rain(1,4383) tide_ft(1,4383));
+estimate input=(rain tide_ft) p=13 q=1 method=ML;
+forecast back=168 lead=168 out=res131t;
+title "Rain & tide (1, 4383) P:13 Q:1";
+run;
+quit;
+
+proc arima data=well2014;
+identify var=height(1,4383) crosscorr=(rain(1,4383));
+estimate input=(rain) p=30 q=2 method=ML;
+forecast back=168 lead=168 out=res302;
+title "(1, 4383) P:13 Q:2";
+run;
+quit;
+
+data res130;;
+	set res130;
+	abs_error = abs(residual);
+	abs_percent_error = abs(residual)/height;
+run;
+
+proc sql;
+	select mean(abs_percent_error), sum(abs_error)
+	from res130;
 quit;
 
 
@@ -137,7 +198,6 @@ identify var=rain(1,4383);
 estimate p=13 q=1 method=ML;
 run;
 quit;
-
 
 proc arima data=well2014;
 identify var=rain(1,4383);
